@@ -26,7 +26,7 @@ function testReducer(state: TestState, action: TestAction): TestState {
         case 'START_TEST':
             return { ...state, isActive: true, timeLeft: 60, errorCount: 0 };
         case 'END_TEST':
-            return { ...state, isActive: false, timeLeft: 60, input: '', wpm: calculateWPM(state), accuracy: calculateAccuracy(state) };
+            return { ...state, isActive: false, timeLeft: 60, input: '', word: newWords(), wpm: calculateWPM(state), accuracy: calculateAccuracy(state) };
         case 'RESET_TEST':
             return { ...state, input: '', timeLeft: 60, isActive: false, errorCount: 0, word: newWords(), wpm: 0, accuracy: 0 };
         case 'SET_INPUT':
@@ -52,7 +52,7 @@ function newWords(): WordType[] {
 }
 
 function calculateWPM(state: TestState): number {
-    const wordsPerMinute = (state.input.length - state.errorCount / 5 ) / (60 / state.timeLeft);
+    const wordsPerMinute = (state.input.length - state.errorCount / 5) / (60 / state.timeLeft);
     return Math.round(wordsPerMinute);
 }
 
@@ -137,7 +137,7 @@ export default function useTest() {
         previousWord.current = [];
     }
 
-    
+
 
     return {
         ...state,
