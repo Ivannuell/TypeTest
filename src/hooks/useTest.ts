@@ -1,6 +1,6 @@
 import { useEffect, useRef, useReducer } from "react";
 import { sentence } from "@ndaidong/txtgen";
-import type { WordType } from "../types/types";
+import type { WordType } from "../utils/types";
 
 type TestState = {
     input: string;
@@ -8,6 +8,8 @@ type TestState = {
     timeLeft: number;
     isActive: boolean;
     errorCount: number;
+    wpm: number;
+    accuracy: number;
 };
 
 type TestAction =
@@ -24,9 +26,9 @@ function testReducer(state: TestState, action: TestAction): TestState {
         case 'START_TEST':
             return { ...state, isActive: true, timeLeft: 60, errorCount: 0 };
         case 'END_TEST':
-            return { ...state, isActive: false, timeLeft: 0, input: '' };
+            return { ...state, isActive: false, timeLeft: 60, input: '', wpm: calculateWPM(state), accuracy: calculateAccuracy(state) };
         case 'RESET_TEST':
-            return { ...state, input: '', timeLeft: 60, isActive: false, errorCount: 0, word: newWords() };
+            return { ...state, input: '', timeLeft: 60, isActive: false, errorCount: 0, word: newWords(), wpm: 0, accuracy: 0 };
         case 'SET_INPUT':
             return { ...state, input: action.payload };
         case 'DECREMENT_TIME':
@@ -49,13 +51,25 @@ function newWords(): WordType[] {
     }));
 }
 
-export function useTest() {
+function calculateWPM(state: TestState): number {
+    const wordsPerMinute = (state.input.length - state.errorCount / 5 ) / (60 / state.timeLeft);
+    return Math.round(wordsPerMinute);
+}
+
+function calculateAccuracy(state: TestState): number {
+    const accuracy = ((state.input.length - state.errorCount) / state.input.length) * 100;
+    return Math.round(accuracy);
+}
+
+export default function useTest() {
     const [state, dispatch] = useReducer(testReducer, {
         input: '',
         word: newWords(),
         timeLeft: 60,
         isActive: false,
-        errorCount: 0
+        errorCount: 0,
+        wpm: 0,
+        accuracy: 0
     });
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -116,14 +130,14 @@ export function useTest() {
     function endTest() {
         dispatch({ type: 'END_TEST' });
         if (timerRef.current) clearTimeout(timerRef.current);
-        alert('Test Done');
-        startTest();
     }
 
     function startTest() {
         dispatch({ type: 'START_TEST' });
         previousWord.current = [];
     }
+
+    
 
     return {
         ...state,

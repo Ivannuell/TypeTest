@@ -8,7 +8,7 @@ export interface WordsProp {
 function Words({ words }: WordsProp) {
 
     return (
-        <div className="word">
+        <div className="word text-gray-300">
             {words.map((letter, index) =>
                 <span
                     className={`${letter.class}`}
