@@ -4,9 +4,10 @@ interface InputFieldProps {
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isDisabled: boolean;
+  inputRef: React.RefObject<HTMLInputElement>;
 }
 
-function InputField({ input, handleInputChange, isDisabled }: InputFieldProps) {
+function InputField({ input, handleInputChange, isDisabled, inputRef }: InputFieldProps) {
   return (
     <input
       type="text"
@@ -15,6 +16,7 @@ function InputField({ input, handleInputChange, isDisabled }: InputFieldProps) {
       onChange={handleInputChange}
       // className="w-full max-w-md px-4 py-2 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white opacity-0"
       className="opacity-0 h-0"
+      ref={inputRef}
       disabled={isDisabled}
     />
   );
