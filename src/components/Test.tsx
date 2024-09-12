@@ -9,6 +9,7 @@ interface TestProps {
     timeLeft: number;
     resetTest: () => void;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    inputRef: React.RefObject<HTMLInputElement>;
 }
 
 function Test({
@@ -17,11 +18,14 @@ function Test({
     handleInputChange,
     timeActive,
     timeLeft,
-    resetTest
+    resetTest,
+    inputRef
 
 }: TestProps) 
 
 {
+    
+
     return (
         <>
             <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
@@ -32,6 +36,7 @@ function Test({
                 input={input}
                 handleInputChange={handleInputChange}
                 isDisabled={timeActive && timeLeft < 0}
+                inputRef={inputRef}
             />
 
             <button

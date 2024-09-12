@@ -16,7 +16,8 @@ function App() {
     resetTest,
     retryTest,
     wpm,
-    accuracy
+    accuracy,
+    inputRef
   } = useTest();
 
   document.getElementById('inputfield')?.focus();
@@ -32,6 +33,7 @@ function App() {
           timeActive={timeActive}
           timeLeft={timeLeft}
           resetTest={resetTest}
+          inputRef={inputRef}
         />
       ) : (
         <Results
@@ -40,7 +42,7 @@ function App() {
           errors={errorCount}
           resetTest={retryTest}
         />
-      )}
+      )}  
     </div>
   );
 }
