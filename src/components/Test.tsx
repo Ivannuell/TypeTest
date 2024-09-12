@@ -1,15 +1,12 @@
 import Words from "./Words"
 import InputField from "./InputField";
 import type { WordType } from "../utils/types";
-import Results from "./Results";
 
 interface TestProps {
     words: WordType[];
     input: string;
-    isActive: boolean;
+    timeActive: boolean;
     timeLeft: number;
-    wpm: number;
-    accuracy: number;
     resetTest: () => void;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -18,23 +15,23 @@ function Test({
     words,
     input,
     handleInputChange,
-    isActive,
+    timeActive,
     timeLeft,
-    resetTest,
-    wpm,
-    accuracy
+    resetTest
 
 }: TestProps) 
 
 {
     return (
         <>
+            <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
+
             <Words words={words} />
 
             <InputField
                 input={input}
                 handleInputChange={handleInputChange}
-                isDisabled={isActive && timeLeft < 0}
+                isDisabled={timeActive && timeLeft < 0}
             />
 
             <button
@@ -43,8 +40,6 @@ function Test({
             >
                 New Test
             </button>
-
-            <Results wpm={wpm} accuracy={accuracy} />
         </>
     )
 }

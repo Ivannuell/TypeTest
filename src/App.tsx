@@ -1,5 +1,6 @@
 /// <reference types="node" />
 
+import Results from "./components/Results";
 import Test from "./components/Test";
 import useTest from "./hooks/useTest";
 
@@ -8,30 +9,38 @@ function App() {
     input,
     word,
     timeLeft,
-    isActive,
+    timeActive,
+    showingResults,
     errorCount,
     handleInputChange,
     resetTest,
+    retryTest,
     wpm,
     accuracy
   } = useTest();
 
+  document.getElementById('inputfield')?.focus();
+
   return (
     <div className="container mx-auto p-4 flex flex-col items-center space-y-6 bg-gray-900 text-white min-h-screen">
-      <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
 
-      <Test
-        words={word}
-        input={input}
-        handleInputChange={handleInputChange}
-        isActive={isActive}
-        timeLeft={timeLeft}
-        resetTest={resetTest}
-        wpm={wpm}
-        accuracy={accuracy}
-      />
-
-      <div className="text-xl">Total Errors: {errorCount}</div>
+      {!showingResults ? (
+        <Test
+          words={word}
+          input={input}
+          handleInputChange={handleInputChange}
+          timeActive={timeActive}
+          timeLeft={timeLeft}
+          resetTest={resetTest}
+        />
+      ) : (
+        <Results
+          wpm={wpm}
+          accuracy={accuracy}
+          errors={errorCount}
+          resetTest={retryTest}
+        />
+      )}
     </div>
   );
 }

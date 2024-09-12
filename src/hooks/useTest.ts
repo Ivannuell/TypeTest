@@ -1,4 +1,4 @@
-import { useEffect, useRef, useReducer } from "react";
+import { useEffect, useRef, useReducer, useLayoutEffect } from "react";
 import { sentence } from "@ndaidong/txtgen";
 import type { WordType } from "../utils/types";
 
@@ -6,10 +6,12 @@ type TestState = {
     input: string;
     word: WordType[];
     timeLeft: number;
-    isActive: boolean;
+    timeActive: boolean;
+    showingResults: boolean;
     errorCount: number;
     wpm: number;
     accuracy: number;
+
 };
 
 type TestAction =
@@ -19,24 +21,27 @@ type TestAction =
     | { type: 'SET_INPUT'; payload: string }
     | { type: 'DECREMENT_TIME' }
     | { type: 'INCREMENT_ERROR' }
-    | { type: 'SET_WORD'; payload: WordType[] };
+    | { type: 'SET_WORD'; payload: WordType[] }
+    | { type: 'RETRY_TEST' };
 
 function testReducer(state: TestState, action: TestAction): TestState {
     switch (action.type) {
         case 'START_TEST':
-            return { ...state, isActive: true, timeLeft: 60, errorCount: 0 };
+            return { ...state, timeActive: true, showingResults: false, timeLeft: 60, errorCount: 0 };
         case 'END_TEST':
-            return { ...state, isActive: false, timeLeft: 60, input: '', word: newWords(), wpm: calculateWPM(state), accuracy: calculateAccuracy(state) };
+            return { ...state, timeActive: false, showingResults: true, timeLeft: 60, input: '', word: newWords(), wpm: calculateWPM(state), accuracy: calculateAccuracy(state) };
         case 'RESET_TEST':
-            return { ...state, input: '', timeLeft: 60, isActive: false, errorCount: 0, word: newWords(), wpm: 0, accuracy: 0 };
+            return { ...state, input: '', timeLeft: 60, timeActive: false, errorCount: 0, word: newWords(), wpm: 0, accuracy: 0 };
         case 'SET_INPUT':
             return { ...state, input: action.payload };
         case 'DECREMENT_TIME':
             return { ...state, timeLeft: state.timeLeft - 1 };
         case 'INCREMENT_ERROR':
             return { ...state, errorCount: state.errorCount + 1 };
+        case 'RETRY_TEST':
+            return { ...state, timeActive: false, showingResults: false, timeLeft: 60, errorCount: 0 };
         case 'SET_WORD':
-            return { ...state, word: action.payload };
+            return { ...state, word: action.payload };  
         default:
             return state;
     }
@@ -66,11 +71,16 @@ export default function useTest() {
         input: '',
         word: newWords(),
         timeLeft: 60,
-        isActive: false,
+        timeActive: false,
         errorCount: 0,
         wpm: 0,
-        accuracy: 0
+        accuracy: 0,
+        showingResults: false
     });
+
+    useLayoutEffect(() => {
+        document.getElementById('inputfield')?.focus();
+    }, [state.showingResults]);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const previousWord = useRef<Array<{ char: string; class: string }>>([]);
@@ -80,7 +90,7 @@ export default function useTest() {
     }, [state.input]);
 
     useEffect(() => {
-        if (state.isActive && state.timeLeft > 0) {
+        if (state.timeActive && state.timeLeft > 0) {
             timerRef.current = setTimeout(() => {
                 dispatch({ type: 'DECREMENT_TIME' });
             }, 1000);
@@ -89,13 +99,13 @@ export default function useTest() {
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current);
         };
-    }, [state.isActive, state.timeLeft]);
+    }, [state.timeActive, state.timeLeft]);
 
     useEffect(() => {
-        if (state.input.length === 1 && !state.isActive) {
-            startTest();
+        if (state.input.length === 1 && !state.timeActive) {
+            dispatch({ type: 'START_TEST' });
         }
-    }, [state.input]);
+    }, [state.input, state.timeActive]);
 
     function handleWords() {
         const newWord = state.word.map((letter, index) => {
@@ -127,6 +137,11 @@ export default function useTest() {
         previousWord.current = [];
     }
 
+    function retryTest() {
+        dispatch({ type: 'RETRY_TEST' });
+        previousWord.current = [];
+    }
+
     function endTest() {
         dispatch({ type: 'END_TEST' });
         if (timerRef.current) clearTimeout(timerRef.current);
@@ -138,10 +153,11 @@ export default function useTest() {
     }
 
 
-
     return {
         ...state,
         handleInputChange,
         resetTest,
+        startTest,
+        retryTest
     };
 }
