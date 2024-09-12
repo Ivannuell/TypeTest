@@ -165,8 +165,6 @@ export default function useTest() {
                 class: `${newWord[currentLetterIndex].class} bg-green-800`
             };
         }
-        
-        
 
 
         return newWord;
@@ -204,14 +202,11 @@ export default function useTest() {
 
     }, [state.input, state.timeActive]);
 
-
     //This is called when the user types in the input field
     function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
         if (state.timeLeft > 0 && e.target.value.length <= state.word.length) {
             dispatch({ type: 'SET_INPUT', payload: e.target.value });
             dispatch({ type: 'SET_WORD', payload: handleWords(e.target.value) });
-
-            
             
             if (e.target.value.length >= state.word.length) {
                 endTest();
